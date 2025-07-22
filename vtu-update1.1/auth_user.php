@@ -28,8 +28,14 @@ if ($action === 'register') {
             $new_user_id = $pdo->lastInsertId();
 
             if (!empty($ref)) {
-                $stmt = $pdo->prepare("UPDATE users SET bonus_balance = bonus_balance + 500 WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE referral_link = ?");
                 $stmt->execute([$ref]);
+                $referrer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($referrer) {
+                    $stmt = $pdo->prepare("UPDATE users SET referred_by = ? WHERE id = ?");
+                    $stmt->execute([$referrer['id'], $new_user_id]);
+                }
             }
 
             $pdo->commit();

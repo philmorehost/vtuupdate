@@ -8,7 +8,7 @@ $stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Fetch all users
-$stmt = $pdo->query("SELECT id, name, email, phone, wallet_balance, status, last_login, referred_by FROM users ORDER BY created_at DESC");
+$stmt = $pdo->query("SELECT u.id, u.name, u.email, u.phone, u.wallet_balance, u.status, u.last_login, r.name as referrer_name FROM users u LEFT JOIN users r ON u.referred_by = r.id ORDER BY u.created_at DESC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -60,6 +60,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Email / Phone</th>
                             <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Balance</th>
                             <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Status</th>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Referred By</th>
                             <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
                         </tr>
                     </thead>
@@ -77,6 +78,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?= htmlspecialchars($user['status']) ?>
                                     </span>
                                 </td>
+                                <td class="text-left py-3 px-4"><?= htmlspecialchars($user['referrer_name'] ?? 'N/A') ?></td>
                                 <td class="text-left py-3 px-4">
                                     <a href="user_edit.php?id=<?= $user['id'] ?>" class="text-blue-500 hover:text-blue-700">Edit</a>
                                     <a href="user_login.php?id=<?= $user['id'] ?>" class="text-green-500 hover:text-green-700 ml-4">Login as User</a>

@@ -80,7 +80,9 @@ try {
         `site_logo` VARCHAR(255),
         `auth_image` VARCHAR(255),
         `session_timeout` INT DEFAULT 30,
-        `cache_control` VARCHAR(255) DEFAULT 'no-cache'
+        `cache_control` VARCHAR(255) DEFAULT 'no-cache',
+        `referral_bonus_tier1` DECIMAL(5, 2) DEFAULT 0.00,
+        `referral_bonus_tier2` DECIMAL(5, 2) DEFAULT 0.00
     )";
     $pdo->exec($sql);
     $stmt = $pdo->query("SELECT id FROM site_settings WHERE id = 1");
@@ -94,6 +96,19 @@ try {
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `name` VARCHAR(100) NOT NULL,
         `config` TEXT NOT NULL
+    )";
+    $pdo->exec($sql);
+
+    // Bonus Withdrawals table
+    $sql = "CREATE TABLE IF NOT EXISTS `bonus_withdrawals` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL,
+        `amount` DECIMAL(10, 2) NOT NULL,
+        `bank_details` TEXT NOT NULL,
+        `status` VARCHAR(20) DEFAULT 'pending',
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )";
     $pdo->exec($sql);
 

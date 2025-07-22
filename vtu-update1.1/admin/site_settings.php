@@ -67,6 +67,14 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
                             <option value="public, max-age=3600" <?= ($settings['cache_control'] ?? '') === 'public, max-age=3600' ? 'selected' : '' ?>>Cache for 1 hour</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="referral_bonus_tier1">Referral Bonus Tier 1 (%)</label>
+                        <input type="number" step="0.01" name="referral_bonus_tier1" id="referral_bonus_tier1" value="<?= htmlspecialchars($settings['referral_bonus_tier1'] ?? 0.00) ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="referral_bonus_tier2">Referral Bonus Tier 2 (%)</label>
+                        <input type="number" step="0.01" name="referral_bonus_tier2" id="referral_bonus_tier2" value="<?= htmlspecialchars($settings['referral_bonus_tier2'] ?? 0.00) ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    </div>
                     <div class="md:col-span-2 mt-6">
                         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
                             Save Settings

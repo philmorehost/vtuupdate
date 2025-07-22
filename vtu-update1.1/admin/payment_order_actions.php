@@ -57,6 +57,33 @@ try {
         $description = "Wallet funding of ₦" . number_format($order['amount'], 2) . " (Charge: ₦" . number_format($charge, 2) . ")";
         $stmt = $pdo->prepare("INSERT INTO transactions (user_id, type, amount, description, status) VALUES (?, 'credit', ?, ?, 'completed')");
         $stmt->execute([$order['user_id'], $amount_to_credit, $description]);
+
+        // Check for first deposit and referral bonus
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND type = 'credit' AND status = 'completed'");
+        $stmt->execute([$order['user_id']]);
+        $deposit_count = $stmt->fetchColumn();
+
+        if ($deposit_count == 1) {
+            $stmt = $pdo->prepare("SELECT referred_by FROM users WHERE id = ?");
+            $stmt->execute([$order['user_id']]);
+            $referred_by = $stmt->fetchColumn();
+
+            if ($referred_by) {
+                $stmt = $pdo->prepare("SELECT tier FROM users WHERE id = ?");
+                $stmt->execute([$referred_by]);
+                $referrer_tier = $stmt->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT referral_bonus_tier1, referral_bonus_tier2 FROM site_settings WHERE id = 1");
+                $stmt->execute();
+                $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $bonus_percentage = $referrer_tier == 2 ? $settings['referral_bonus_tier2'] : $settings['referral_bonus_tier1'];
+                $bonus_amount = ($bonus_percentage / 100) * $order['amount'];
+
+                $stmt = $pdo->prepare("UPDATE users SET bonus_balance = bonus_balance + ? WHERE id = ?");
+                $stmt->execute([$bonus_amount, $referred_by]);
+            }
+        }
     }
 
     $pdo->commit();

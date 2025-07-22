@@ -30,8 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     handle_image_upload('site_logo', 'site_logo', $pdo);
     handle_image_upload('auth_image', 'auth_image', $pdo);
 
-    $stmt = $pdo->prepare("UPDATE site_settings SET site_name = ?, session_timeout = ?, cache_control = ? WHERE id = 1");
-    $stmt->execute([$site_name, $session_timeout, $cache_control]);
+    $referral_bonus_tier1 = $_POST['referral_bonus_tier1'];
+    $referral_bonus_tier2 = $_POST['referral_bonus_tier2'];
+
+    $stmt = $pdo->prepare("UPDATE site_settings SET site_name = ?, session_timeout = ?, cache_control = ?, referral_bonus_tier1 = ?, referral_bonus_tier2 = ? WHERE id = 1");
+    $stmt->execute([$site_name, $session_timeout, $cache_control, $referral_bonus_tier1, $referral_bonus_tier2]);
 
     header('Location: site_settings.php');
     exit();
