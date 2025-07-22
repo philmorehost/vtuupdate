@@ -1,0 +1,39 @@
+<?php
+session_start();
+require_once('auth_check.php');
+require_once('../includes/db.php');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $site_name = $_POST['site_name'];
+    $session_timeout = $_POST['session_timeout'];
+    $cache_control = $_POST['cache_control'];
+
+    function handle_image_upload($file_key, $column_name, $pdo) {
+        if (isset($_FILES[$file_key]) && $_FILES[$file_key]['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = '../assets/images/';
+            if (!is_dir($upload_dir)) {
+                if (!mkdir($upload_dir, 0755, true)) {
+                    die("Failed to create directory: " . $upload_dir);
+                }
+            }
+            $file_name = uniqid() . '-' . basename($_FILES[$file_key]['name']);
+            $target_file = $upload_dir . $file_name;
+            
+            if (move_uploaded_file($_FILES[$file_key]['tmp_name'], $target_file)) {
+                $image_path = 'assets/images/' . $file_name;
+                $stmt = $pdo->prepare("UPDATE site_settings SET $column_name = ? WHERE id = 1");
+                $stmt->execute([$image_path]);
+            }
+        }
+    }
+
+    handle_image_upload('site_logo', 'site_logo', $pdo);
+    handle_image_upload('auth_image', 'auth_image', $pdo);
+
+    $stmt = $pdo->prepare("UPDATE site_settings SET site_name = ?, session_timeout = ?, cache_control = ? WHERE id = 1");
+    $stmt->execute([$site_name, $session_timeout, $cache_control]);
+
+    header('Location: site_settings.php');
+    exit();
+}
+?>

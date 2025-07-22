@@ -1,0 +1,5 @@
+[22-Jul-2025 15:46:12 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'u.username' in 'field list' in /home/aipmh/public_html/api/payment_orders.php:12
+Stack trace:
+#0 /home/aipmh/public_html/api/payment_orders.php(12): PDO->query()
+#1 {main}
+  thrown in /home/aipmh/public_html/api/payment_orders.php on line 12
