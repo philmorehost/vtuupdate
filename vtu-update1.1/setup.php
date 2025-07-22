@@ -138,12 +138,22 @@ try {
     )";
     $pdo->exec($sql);
 
+    // Admins table
+    $sql = "CREATE TABLE IF NOT EXISTS `admins` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `name` VARCHAR(255) NOT NULL,
+        `email` VARCHAR(255) NOT NULL UNIQUE,
+        `password` VARCHAR(255) NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    $pdo->exec($sql);
+
     // Add admin user if not exists
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = 'admin@example.com'");
+    $stmt = $pdo->prepare("SELECT id FROM admins WHERE email = 'admin@example.com'");
     $stmt->execute();
     if ($stmt->rowCount() == 0) {
         $admin_pass = password_hash('password', PASSWORD_DEFAULT);
-        $pdo->exec("INSERT INTO users (name, email, phone, password, tier) VALUES ('Admin', 'admin@example.com', '00000000000', '$admin_pass', 99)");
+        $pdo->exec("INSERT INTO admins (name, email, password) VALUES ('Admin', 'admin@example.com', '$admin_pass')");
     }
 
 

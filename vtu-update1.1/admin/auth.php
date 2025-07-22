@@ -12,12 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT id, password, user_level FROM users WHERE email = ?");
+        $stmt = $pdo->prepare("SELECT id, password FROM admins WHERE email = ?");
         $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && $user['user_level'] == 1 && password_verify($password, $user['password'])) {
-            $_SESSION['admin_id'] = $user['id'];
+        if ($admin && password_verify($password, $admin['password'])) {
+            $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin'] = $email;
             header('Location: dashboard.php');
             exit();
