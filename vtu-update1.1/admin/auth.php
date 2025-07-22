@@ -19,6 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin && password_verify($password, $admin['password'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin'] = $email;
+
+            $stmt = $pdo->prepare("UPDATE admins SET last_login = NOW() WHERE id = ?");
+            $stmt->execute([$admin['id']]);
+
             header('Location: dashboard.php');
             exit();
         } else {

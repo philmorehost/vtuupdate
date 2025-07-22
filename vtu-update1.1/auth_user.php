@@ -66,6 +66,10 @@ if ($action === 'register') {
 
             if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
+
+                $stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                $stmt->execute([$user['id']]);
+
                 header('Location: index.php');
                 exit();
             } else {

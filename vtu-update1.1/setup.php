@@ -25,7 +25,8 @@ try {
         `api_key` VARCHAR(255),
         `api_enabled` BOOLEAN DEFAULT FALSE,
         `last_login` TIMESTAMP NULL,
-        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `user_level` INT DEFAULT 0
     )";
     $pdo->exec($sql);
 
@@ -144,6 +145,7 @@ try {
         `name` VARCHAR(255) NOT NULL,
         `email` VARCHAR(255) NOT NULL UNIQUE,
         `password` VARCHAR(255) NOT NULL,
+        `last_login` TIMESTAMP NULL,
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )";
     $pdo->exec($sql);
