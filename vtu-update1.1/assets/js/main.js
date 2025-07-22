@@ -2722,6 +2722,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    function showTransactionDetailsModal(transactionId) {
+        fetch(`api/transaction-details.php?id=${transactionId}`)
+            .then(response => response.json())
+            .then(response => {
+                if (response.success) {
+                    const transaction = response.data;
+                    transactionDetailsContent.innerHTML = `
+                        <p><strong>ID:</strong> ${transaction.id}</p>
+                        <p><strong>Type:</strong> ${transaction.type}</p>
+                        <p><strong>Description:</strong> ${transaction.description}</p>
+                        <p><strong>Amount:</strong> ₦${Math.abs(transaction.amount).toFixed(2)}</p>
+                        <p><strong>Balance Before:</strong> ₦${Number(transaction.balance_before).toFixed(2)}</p>
+                        <p><strong>Balance After:</strong> ₦${Number(transaction.balance_after).toFixed(2)}</p>
+                        <p><strong>Date:</strong> ${new Date(transaction.date).toLocaleString()}</p>
+                        <p><strong>Status:</strong> ${transaction.status}</p>
+                    `;
+                    printReceiptBtn.dataset.transactionId = transaction.id;
+                    transactionDetailsModal.classList.remove('hidden');
+                } else {
+                    alert(response.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching transaction details:', error);
+                alert('An error occurred while fetching transaction details.');
+            });
+    }
+
     // --- Initial Load ---
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme');
