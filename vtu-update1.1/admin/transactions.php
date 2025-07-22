@@ -12,7 +12,41 @@ $sql = "SELECT t.*, u.name AS user_name FROM transactions t JOIN users u ON t.us
 $where = [];
 $params = [];
 
-// Filtering logic will go here
+// Filtering logic
+if (!empty($_GET['filter'])) {
+    $filter = $_GET['filter'];
+    $today = date('Y-m-d');
+    if ($filter === 'today') {
+        $where[] = "DATE(t.created_at) = ?";
+        $params[] = $today;
+    } elseif ($filter === 'week') {
+        $start_of_week = date('Y-m-d', strtotime('monday this week'));
+        $where[] = "t.created_at >= ?";
+        $params[] = $start_of_week;
+    } elseif ($filter === 'month') {
+        $start_of_month = date('Y-m-01');
+        $where[] = "t.created_at >= ?";
+        $params[] = $start_of_month;
+    }
+}
+
+if (!empty($_GET['start_date']) && !empty($_GET['end_date'])) {
+    $where[] = "DATE(t.created_at) BETWEEN ? AND ?";
+    $params[] = $_GET['start_date'];
+    $params[] = $_GET['end_date'];
+}
+
+if (!empty($_GET['search'])) {
+    $search = "%" . $_GET['search'] . "%";
+    $where[] = "(u.name LIKE ? OR t.type LIKE ? OR t.status LIKE ?)";
+    $params[] = $search;
+    $params[] = $search;
+    $params[] = $search;
+}
+
+if (!empty($where)) {
+    $sql .= " WHERE " . implode(" AND ", $where);
+}
 
 $sql .= " ORDER BY t.created_at DESC";
 $stmt = $pdo->prepare($sql);
@@ -70,23 +104,29 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Filter and Export Controls -->
             <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <!-- Search Box -->
-                        <input type="text" id="searchInput" placeholder="Search transactions..." class="border rounded py-2 px-4">
+                <form action="transactions.php" method="GET">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <!-- Search Box -->
+                            <input type="text" name="search" placeholder="Search transactions..." class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                        </div>
+                        <div>
+                            <!-- Date Filters -->
+                            <a href="transactions.php?filter=today" class="bg-blue-500 text-white py-2 px-4 rounded">Today</a>
+                            <a href="transactions.php?filter=week" class="bg-blue-500 text-white py-2 px-4 rounded">This Week</a>
+                            <a href="transactions.php?filter=month" class="bg-blue-500 text-white py-2 px-4 rounded">This Month</a>
+                        </div>
+                        <div>
+                            <input type="date" name="start_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['start_date'] ?? '') ?>">
+                            <input type="date" name="end_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['end_date'] ?? '') ?>">
+                            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Filter</button>
+                        </div>
+                        <div>
+                            <!-- Export/Import -->
+                            <a href="export_transactions.php?<?= http_build_query($_GET) ?>" class="bg-green-500 text-white py-2 px-4 rounded">Export CSV</a>
+                        </div>
                     </div>
-                    <div>
-                        <!-- Date Filters -->
-                        <button class="bg-blue-500 text-white py-2 px-4 rounded">Today</button>
-                        <button class="bg-blue-500 text-white py-2 px-4 rounded">This Week</button>
-                        <button class="bg-blue-500 text-white py-2 px-4 rounded">This Month</button>
-                        <!-- Custom Date Range would go here -->
-                    </div>
-                    <div>
-                        <!-- Export/Import -->
-                        <button class="bg-green-500 text-white py-2 px-4 rounded">Export CSV</button>
-                    </div>
-                </div>
+                </form>
             </div>
 
             <div class="flex items-center justify-end mb-4">
@@ -147,33 +187,38 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
                     </tbody>
                 </table>
             </div>
+            <div id="batch-view" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Batch Transactions</h2>
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Batch ID</th>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Counts (Success/Failed/Processing)</th>
+                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700">
+                        <?php foreach ($batches as $batch): ?>
+                            <tr>
+                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['batch_id']) ?></td>
+                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['user_id']) ?></td>
+                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['type']) ?></td>
+                                <td class="text-left py-3 px-4">
+                                    <span class="text-green-500"><?= $batch['success_count'] ?></span> /
+                                    <span class="text-red-500"><?= $batch['failed_count'] ?></span> /
+                                    <span class="text-yellow-500"><?= $batch['processing_count'] ?></span>
+                                </td>
+                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['date']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script>
-        // Live search functionality
-        const searchInput = document.getElementById('searchInput');
-        const table = document.getElementById('transactionsTable');
-        const rows = table.getElementsByTagName('tr');
-
-        searchInput.addEventListener('keyup', function() {
-            const filter = searchInput.value.toLowerCase();
-            for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].getElementsByTagName('td');
-                let found = false;
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().indexOf(filter) > -1) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
-            }
-        });
-
         // Toggle between individual and batch view
         const toggleBatch = document.getElementById('toggle-batch');
         const individualView = document.getElementById('individual-view');
