@@ -5,7 +5,8 @@ if (isset($_SESSION['admin'])) {
     exit();
 }
 require_once('../includes/db.php');
-$stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
+$stmt = $pdo->prepare("SELECT * FROM site_settings WHERE id = ?");
+$stmt->execute([1]);
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -31,10 +32,10 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
                     </div>
                     <h2 class="text-2xl font-bold text-center mb-6">Admin Login</h2>
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-                            Username
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                            Email
                         </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" name="username" type="text" placeholder="Username" required>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" name="email" type="email" placeholder="Email" required>
                     </div>
                     <div class="mb-6">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="password">

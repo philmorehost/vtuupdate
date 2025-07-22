@@ -5,7 +5,8 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 require_once('includes/db.php');
-$stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
+$stmt = $pdo->prepare("SELECT * FROM site_settings WHERE id = ?");
+$stmt->execute([1]);
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
