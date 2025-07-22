@@ -47,6 +47,17 @@ try {
     )";
     $pdo->exec($sql);
 
+    // Bank Details table
+    $sql = "CREATE TABLE IF NOT EXISTS `bank_details` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `bank_name` VARCHAR(255) NOT NULL,
+        `account_name` VARCHAR(255) NOT NULL,
+        `account_number` VARCHAR(20) NOT NULL,
+        `charge` DECIMAL(10, 2) DEFAULT 0.00,
+        `instructions` TEXT
+    )";
+    $pdo->exec($sql);
+
     // Payment Orders table
     $sql = "CREATE TABLE IF NOT EXISTS `payment_orders` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,21 +70,6 @@ try {
         `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (bank_id) REFERENCES bank_details(id) ON DELETE SET NULL
-    )";
-    $pdo->exec($sql);
-
-    if (!$pdo->query("SHOW COLUMNS FROM `payment_orders` LIKE 'bank_id'")->fetch()) {
-        $pdo->exec("ALTER TABLE `payment_orders` ADD COLUMN `bank_id` INT AFTER `user_id`, ADD CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `bank_details`(`id`) ON DELETE SET NULL;");
-    }
-
-    // Bank Details table
-    $sql = "CREATE TABLE IF NOT EXISTS `bank_details` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `bank_name` VARCHAR(255) NOT NULL,
-        `account_name` VARCHAR(255) NOT NULL,
-        `account_number` VARCHAR(20) NOT NULL,
-        `charge` DECIMAL(10, 2) DEFAULT 0.00,
-        `instructions` TEXT
     )";
     $pdo->exec($sql);
 
