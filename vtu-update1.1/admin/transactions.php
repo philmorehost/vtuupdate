@@ -179,7 +179,9 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td class="text-left py-3 px-4">
                                     <?php if ($transaction['status'] === 'Processing'): ?>
-                                        <a href="transaction_actions.php?action=cancel&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700">Cancel</a>
+                                        <a href="transaction_actions.php?action=cancel&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to cancel this transaction?');">Cancel</a>
+                                    <?php elseif ($transaction['status'] === 'Completed'): ?>
+                                        <a href="transaction_actions.php?action=fail&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to fail this transaction? This will refund the user.');">Fail</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
