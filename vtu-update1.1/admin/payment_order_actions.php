@@ -51,12 +51,19 @@ try {
 
         $amount_to_credit = $order['amount'] - $charge;
 
+        // Get balance before
+        $stmt = $pdo->prepare("SELECT wallet_balance FROM users WHERE id = ?");
+        $stmt->execute([$order['user_id']]);
+        $balance_before = $stmt->fetchColumn();
+
         $stmt = $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?");
         $stmt->execute([$amount_to_credit, $order['user_id']]);
 
+        $balance_after = $balance_before + $amount_to_credit;
+
         $description = "Wallet funding of ₦" . number_format($order['amount'], 2) . " (Charge: ₦" . number_format($charge, 2) . ")";
-        $stmt = $pdo->prepare("INSERT INTO transactions (user_id, type, amount, description, status) VALUES (?, 'credit', ?, ?, 'completed')");
-        $stmt->execute([$order['user_id'], $amount_to_credit, $description]);
+        $stmt = $pdo->prepare("INSERT INTO transactions (user_id, type, amount, description, status, balance_before, balance_after) VALUES (?, 'credit', ?, ?, 'completed', ?, ?)");
+        $stmt->execute([$order['user_id'], $amount_to_credit, $description, $balance_before, $balance_after]);
 
         // Check for first deposit and referral bonus
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND type = 'credit' AND status = 'completed'");
@@ -96,3 +103,4 @@ try {
     header('Location: payment_orders.php?error=db_error');
     exit();
 }
+?>
