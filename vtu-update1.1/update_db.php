@@ -2,8 +2,6 @@
 require_once('includes/db.php');
 
 try {
-    $pdo->beginTransaction();
-
     // Create admins table
     $sql = "CREATE TABLE IF NOT EXISTS `admins` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,6 +11,8 @@ try {
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )";
     $pdo->exec($sql);
+
+    $pdo->beginTransaction();
 
     // Find and move admin user
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'admin@example.com'");
@@ -31,7 +31,9 @@ try {
     echo "Database updated successfully.";
 
 } catch (PDOException $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     die("ERROR: Could not update the database. " . $e->getMessage());
 }
 ?>
