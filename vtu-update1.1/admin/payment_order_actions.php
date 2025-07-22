@@ -52,7 +52,7 @@ try {
         $amount_to_credit = $order['amount'] - $charge;
 
         // Get balance before
-        $stmt = $pdo->prepare("SELECT wallet_balance FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE");
         $stmt->execute([$order['user_id']]);
         $balance_before = $stmt->fetchColumn();
 
