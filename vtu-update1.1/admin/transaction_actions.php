@@ -32,8 +32,6 @@ if ($action === 'cancel' && $transactionId) {
         $pdo->rollBack();
         die('Error: ' . $e->getMessage());
     }
-}
-
 } elseif ($action === 'fail' && $transactionId) {
     try {
         $pdo->beginTransaction();
