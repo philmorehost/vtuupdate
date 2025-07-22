@@ -7,6 +7,11 @@ require_once('../includes/db.php');
 $stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
 $settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Fetch stats
+$total_users = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$total_transactions = $pdo->query("SELECT COUNT(*) FROM transactions")->fetchColumn();
+$total_revenue = $pdo->query("SELECT SUM(amount) FROM transactions WHERE amount < 0")->fetchColumn();
+
 // Fetch recent transactions
 $stmt = $pdo->query("SELECT t.*, u.name as user_name FROM transactions t JOIN users u ON t.user_id = u.id ORDER BY t.created_at DESC LIMIT 5");
 $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -49,15 +54,15 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-xl font-bold">Total Users</h3>
-                    <p class="text-3xl mt-2">1,234</p>
+                    <p class="text-3xl mt-2"><?= htmlspecialchars($total_users) ?></p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-xl font-bold">Total Transactions</h3>
-                    <p class="text-3xl mt-2">5,678</p>
+                    <p class="text-3xl mt-2"><?= htmlspecialchars($total_transactions) ?></p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-xl font-bold">Total Revenue</h3>
-                    <p class="text-3xl mt-2">₦1,234,567</p>
+                    <p class="text-3xl mt-2">₦<?= htmlspecialchars(number_format(abs($total_revenue), 2)) ?></p>
                 </div>
             </div>
 
