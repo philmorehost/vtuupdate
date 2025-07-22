@@ -73,6 +73,9 @@ if (!isset($_SESSION['user_id'])) {
                     <button id="dashboard-fund-wallet-button" class="bg-white text-blue-700 w-12 h-12 rounded-full flex items-center justify-center shadow-xl transform hover:scale-105 transition-transform" title="Fund Wallet">
                         <i class="fas fa-plus text-xl"></i>
                     </button>
+                    <button id="share-fund-button" class="bg-purple-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-xl transform hover:scale-105 transition-transform" title="Share Fund">
+                        <i class="fas fa-share-alt text-xl"></i>
+                    </button>
                 </div>
             </div>
 
@@ -1197,6 +1200,29 @@ if (!isset($_SESSION['user_id'])) {
                 </button>
             </div>
             <p class="text-gray-700">Withdrawal functionality is coming soon.</p>
+        </div>
+    </div>
+
+    <!-- Share Fund Modal -->
+    <div id="share-fund-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">Share Fund</h3>
+                <button id="close-share-fund-modal" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="share-fund-form" action="share_fund.php" method="POST">
+                <div class="mb-4">
+                    <label for="recipient-email" class="block text-gray-700 text-sm font-bold mb-2">Recipient Email</label>
+                    <input type="email" id="recipient-email" name="email" class="w-full p-3 rounded-lg border border-gray-300" required>
+                </div>
+                <div class="mb-4">
+                    <label for="share-amount" class="block text-gray-700 text-sm font-bold mb-2">Amount</label>
+                    <input type="number" id="share-amount" name="amount" class="w-full p-3 rounded-lg border border-gray-300" required step="0.01">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Share Fund</button>
+            </form>
         </div>
     </div>
 

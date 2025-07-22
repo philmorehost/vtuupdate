@@ -279,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const withdrawButton = document.getElementById('withdraw-button');
     const withdrawModal = document.getElementById('withdraw-modal');
     const closeWithdrawModalButton = document.getElementById('close-withdraw-modal');
+    const shareFundButton = document.getElementById('share-fund-button');
+    const shareFundModal = document.getElementById('share-fund-modal');
+    const closeShareFundModalButton = document.getElementById('close-share-fund-modal');
 
 
     // --- Application State ---
@@ -2721,6 +2724,14 @@ document.addEventListener('DOMContentLoaded', () => {
         withdrawModal.classList.add('hidden');
     });
 
+    shareFundButton.addEventListener('click', () => {
+        shareFundModal.classList.remove('hidden');
+    });
+
+    closeShareFundModalButton.addEventListener('click', () => {
+        shareFundModal.classList.add('hidden');
+    });
+
 
     function showTransactionDetailsModal(transactionId) {
         fetch(`api/transaction-details.php?id=${transactionId}`)
@@ -2748,6 +2759,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error fetching transaction details:', error);
                 alert('An error occurred while fetching transaction details.');
             });
+    }
+
+    function fetchNotifications() {
+        fetch('api/notifications.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    notifications = data.data;
+                    renderNotifications();
+                    updateUnreadNotificationsDot();
+                }
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
     }
 
     // --- Initial Load ---

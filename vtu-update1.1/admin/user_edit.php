@@ -95,7 +95,11 @@ if (!$user) {
             <!-- API Management -->
             <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                 <h2 class="text-2xl font-bold mb-4">API Management</h2>
-                <p class="mb-2">API Key: <strong id="api-key"><?= htmlspecialchars($user['api_key'] ?: 'Not Generated') ?></strong></p>
+                <div class="flex items-center mb-2">
+                    <p class="mr-2">API Key:</p>
+                    <input type="password" id="api-key-input" value="<?= htmlspecialchars($user['api_key'] ?: 'Not Generated') ?>" class="flex-grow shadow appearance-none border rounded py-2 px-3 text-gray-700" readonly>
+                    <button onclick="toggleApiKeyVisibility()" class="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Show</button>
+                </div>
                 <div class="flex items-center space-x-4">
                     <form action="user_actions.php?action=toggle_api&id=<?= $user['id'] ?>" method="POST" class="inline-block">
                         <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -134,8 +138,20 @@ if (!$user) {
         </div>
     </div>
     <script>
+        function toggleApiKeyVisibility() {
+            const apiKeyInput = document.getElementById('api-key-input');
+            const button = event.target;
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                apiKeyInput.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
+
         function copyApiKey() {
-            const apiKey = document.getElementById('api-key').innerText;
+            const apiKey = document.getElementById('api-key-input').value;
             if (apiKey && apiKey !== 'Not Generated') {
                 navigator.clipboard.writeText(apiKey).then(() => {
                     alert('API Key copied to clipboard!');

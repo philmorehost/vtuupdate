@@ -47,6 +47,32 @@ try {
     )";
     $pdo->exec($sql);
 
+    // Fund Shares table
+    $sql = "CREATE TABLE IF NOT EXISTS `fund_shares` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `sender_id` INT NOT NULL,
+        `recipient_id` INT NOT NULL,
+        `amount` DECIMAL(10, 2) NOT NULL,
+        `status` VARCHAR(20) DEFAULT 'pending',
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $pdo->exec($sql);
+
+    // Notifications table
+    $sql = "CREATE TABLE IF NOT EXISTS `notifications` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT,
+        `title` VARCHAR(255) NOT NULL,
+        `message` TEXT NOT NULL,
+        `is_read` BOOLEAN DEFAULT FALSE,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $pdo->exec($sql);
+
     // Bank Details table
     $sql = "CREATE TABLE IF NOT EXISTS `bank_details` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
