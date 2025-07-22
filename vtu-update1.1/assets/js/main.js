@@ -2471,7 +2471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     printReceiptBtn.addEventListener('click', (e) => {
         const transactionId = e.currentTarget.dataset.transactionId;
-        fetch(`../api/transaction-details.php?id=${transactionId}`)
+        fetch(`api/transaction-details.php?id=${transactionId}`)
             .then(response => response.json())
             .then(response => {
                 if (response.success) {
