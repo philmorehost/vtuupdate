@@ -14,6 +14,30 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `bank_settings` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `bank_name` VARCHAR(255) NOT NULL,
+            `account_name` VARCHAR(255) NOT NULL,
+            `account_number` VARCHAR(20) NOT NULL
+        )
+    ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `admins` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(255) NOT NULL,
+            `email` VARCHAR(255) NOT NULL UNIQUE,
+            `password` VARCHAR(255) NOT NULL,
+            `last_login` TIMESTAMP NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+
+    // Add columns to users table if they don't exist
+    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_login_attempts INT(11) NOT NULL DEFAULT 0");
+    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended_until DATETIME NULL DEFAULT NULL");
 } catch (PDOException $e) {
     die("ERROR: Could not connect. " . $e->getMessage());
 }

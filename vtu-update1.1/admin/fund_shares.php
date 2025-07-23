@@ -3,7 +3,7 @@ require_once('../includes/session_config.php');
 require_once('auth_check.php');
 require_once('../includes/db.php');
 
-$stmt = $pdo->query("SELECT f.*, u.name as sender_name, r.name as receiver_name FROM fund_shares f JOIN users u ON f.sender_id = u.id JOIN users r ON f.receiver_id = r.id ORDER BY f.created_at DESC");
+$stmt = $pdo->query("SELECT f.*, u.name as sender_name, r.name as receiver_name FROM fund_shares f JOIN users u ON f.sender_id = u.id JOIN users r ON f.recipient_id = r.id ORDER BY f.created_at DESC");
 $shares = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
