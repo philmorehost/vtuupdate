@@ -50,7 +50,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="mb-4">
                             <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message</label>
-                            <textarea name="message" id="message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required></textarea>
+                            <textarea name="message" id="message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"></textarea>
                         </div>
                         <div class="mb-4">
                             <label for="user_id" class="block text-gray-700 text-sm font-bold mb-2">User ID (Optional)</label>
@@ -100,6 +100,10 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if ( editor ) {
                 const messageTextarea = document.querySelector( '#message' );
                 messageTextarea.value = editor.getData();
+                if ( !messageTextarea.value ) {
+                    alert( 'Please enter a message.' );
+                    event.preventDefault();
+                }
             }
         } );
     </script>
