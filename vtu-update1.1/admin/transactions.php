@@ -77,7 +77,7 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
 <body class="bg-gray-100">
     <div class="flex h-screen bg-gray-200">
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 text-white p-4">
+        <div id="sidebar" class="w-64 bg-gray-800 text-white p-4 fixed md:relative h-full z-20 md:block hidden">
             <div class="flex justify-center mb-6">
                 <?php if (!empty($settings['site_logo'])): ?>
                     <img src="../<?= htmlspecialchars($settings['site_logo']) ?>" alt="Site Logo" class="h-16">
@@ -91,6 +91,9 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
                 <a href="users.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Users</a>
                 <a href="transactions.php" class="block py-2.5 px-4 rounded transition duration-200 bg-gray-700">Transactions</a>
                 <a href="payment_orders.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Payment Orders</a>
+                <a href="fund_shares.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Fund Shares</a>
+                <a href="bonus_withdrawals.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bonus Withdrawals</a>
+                <a href="notifications.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Notifications</a>
                 <a href="services.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Services</a>
                 <a href="bank_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bank Settings</a>
                 <a href="site_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Site Settings</a>
@@ -100,7 +103,14 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Main Content -->
         <div class="flex-1 p-10 overflow-y-auto">
-            <h1 class="text-3xl font-bold mb-6">Manage Transactions</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">Manage Transactions</h1>
+                <button id="sidebar-toggle" class="md:hidden p-2 rounded-md bg-gray-800 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
 
             <!-- Filter and Export Controls -->
             <div class="bg-white p-4 rounded-lg shadow-md mb-6">
@@ -234,6 +244,11 @@ $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
                 individualView.style.display = 'block';
                 batchView.style.display = 'none';
             }
+        });
+    </script>
+    <script>
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('hidden');
         });
     </script>
 </body>
