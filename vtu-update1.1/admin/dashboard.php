@@ -20,7 +20,7 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $payment_data = $pdo->query("SELECT DATE(created_at) as date, SUM(amount) as total FROM payment_orders WHERE status = 'approved' GROUP BY DATE(created_at) ORDER BY date DESC LIMIT 7")->fetchAll(PDO::FETCH_ASSOC);
 $wallet_data = $pdo->query("SELECT name, wallet_balance FROM users ORDER BY wallet_balance DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
 $browser_data = $pdo->query("SELECT browser, COUNT(*) as count FROM visitors GROUP BY browser")->fetchAll(PDO::FETCH_ASSOC);
-$service_earnings = $pdo->query("SELECT s.name, COUNT(t.id) as total_orders, SUM(t.amount) as admin_earnings FROM services s LEFT JOIN transactions t ON s.id = t.service_id WHERE t.amount < 0 GROUP BY s.id")->fetchAll(PDO::FETCH_ASSOC);
+$service_earnings = $pdo->query("SELECT description, COUNT(id) as total_orders, SUM(amount) as admin_earnings FROM transactions WHERE amount < 0 GROUP BY description")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -228,7 +228,7 @@ $service_earnings = $pdo->query("SELECT s.name, COUNT(t.id) as total_orders, SUM
         let serviceEarningsHtml = '<ul class="list-group">';
         <?php foreach ($service_earnings as $service): ?>
             serviceEarningsHtml += '<li class="list-group-item d-flex justify-content-between align-items-center">';
-            serviceEarningsHtml += '<?= htmlspecialchars($service['name']) ?>';
+            serviceEarningsHtml += '<?= htmlspecialchars($service['description']) ?>';
             serviceEarningsHtml += '<span class="badge bg-primary rounded-pill"><?= htmlspecialchars($service['total_orders']) ?> orders</span>';
             serviceEarningsHtml += '<span class="badge bg-success rounded-pill">₦<?= htmlspecialchars(number_format(abs($service['admin_earnings']), 2)) ?></span>';
             serviceEarningsHtml += '</li>';
