@@ -36,8 +36,15 @@ try {
     ");
 
     // Add columns to users table if they don't exist
-    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_login_attempts INT(11) NOT NULL DEFAULT 0");
-    $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended_until DATETIME NULL DEFAULT NULL");
+    $stmt = $pdo->query("SHOW COLUMNS FROM users LIKE 'failed_login_attempts'");
+    if ($stmt->rowCount() == 0) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN failed_login_attempts INT(11) NOT NULL DEFAULT 0");
+    }
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM users LIKE 'suspended_until'");
+    if ($stmt->rowCount() == 0) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN suspended_until DATETIME NULL DEFAULT NULL");
+    }
 } catch (PDOException $e) {
     die("ERROR: Could not connect. " . $e->getMessage());
 }
