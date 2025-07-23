@@ -1415,7 +1415,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function fetchBankDetails() {
         fetch('api/bank_details.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Bank details data:', data);
                 if (data.success) {
@@ -1423,11 +1428,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayBankDetails();
                     populateBankDropdown();
                 } else {
-                    bankDetailsSection.innerHTML = '<p>Could not load bank details.</p>';
+                    bankDetailsSection.innerHTML = `<p>${data.message}</p>`;
                 }
             })
             .catch(error => {
-                console.error('Error fetching bank details:', error);
+                console.error('Fatal error fetching bank details:', error);
                 bankDetailsSection.innerHTML = '<p>Could not load bank details.</p>';
             });
     }
@@ -2691,29 +2696,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Fetch Functions ---
     function fetchUserData() {
         fetch('api/user.php')
-            .then(response => response.json())
-            .then(data => {
-                userProfile = data;
-                customerNameElement.textContent = userProfile.name;
-                walletBalanceElement.textContent = parseFloat(userProfile.wallet_balance).toFixed(2);
-                bonusBalanceElement.textContent = parseFloat(userProfile.bonus_balance).toFixed(2);
-                userReferralLink = userProfile.referral_link;
-                document.getElementById('referral-link-display').value = userReferralLink;
-                displayReferralLinkInput.value = userReferralLink;
-                updateProfilePage();
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
             })
-            .catch(error => console.error('Error fetching user data:', error));
+            .then(data => {
+                if (data.success) {
+                    userProfile = data.data;
+                    customerNameElement.textContent = userProfile.name;
+                    walletBalanceElement.textContent = parseFloat(userProfile.wallet_balance).toFixed(2);
+                    bonusBalanceElement.textContent = parseFloat(userProfile.bonus_balance).toFixed(2);
+                    userReferralLink = userProfile.referral_link;
+                    document.getElementById('referral-link-display').value = userReferralLink;
+                    displayReferralLinkInput.value = userReferralLink;
+                    updateProfilePage();
+                } else {
+                    console.error('Error fetching user data:', data.message);
+                    // Display an error to the user
+                    appContainer.innerHTML = '<p class="text-red-500 text-center">Could not load user data. Please try again later.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Fatal error fetching user data:', error);
+                // Display a fatal error to the user
+                appContainer.innerHTML = '<p class="text-red-500 text-center">A critical error occurred. Please try again later.</p>';
+            });
     }
 
     function fetchTransactions() {
         fetch('api/transactions.php')
-            .then(response => response.json())
-            .then(data => {
-                transactions = data;
-                filterTransactionsAndRender(); // This will render the main transaction list and the calculator list
-                renderRecentTransactions();
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
             })
-            .catch(error => console.error('Error fetching transactions:', error));
+            .then(data => {
+                if (data.success) {
+                    transactions = data.data;
+                    filterTransactionsAndRender(); // This will render the main transaction list and the calculator list
+                    renderRecentTransactions();
+                } else {
+                    console.error('Error fetching transactions:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fatal error fetching transactions:', error);
+            });
     }
 
     withdrawButton.addEventListener('click', () => {

@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once('db.php');
 
 $stmt = $pdo->query("SELECT session_timeout, cache_control FROM site_settings WHERE id = 1");
@@ -13,4 +12,6 @@ if ($settings) {
     // Set cache control header
     header("Cache-Control: " . $settings['cache_control']);
 }
+
+session_start();
 ?>
