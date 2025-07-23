@@ -120,9 +120,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         });
 
-        document.getElementById('delete-notifications-form').addEventListener('submit', function(event) {
-            // No longer need to prevent default and show alert
-        });
+        // No longer need the javascript alert
     </script>
 </body>
 </html>

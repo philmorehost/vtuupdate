@@ -1369,11 +1369,11 @@ document.addEventListener('DOMContentLoaded', () => {
             li.dataset.notificationId = notif.id;
 
             li.innerHTML = `
-                <div class="flex-shrink-0 w-3 h-3 rounded-full mr-3 mt-1 ${notif.read ? 'bg-gray-300' : 'bg-blue-500'}"></div>
+                <div class="flex-shrink-0 w-3 h-3 rounded-full mr-3 mt-1 ${notif.is_read ? 'bg-gray-300' : 'bg-blue-500'}"></div>
                 <div class="flex-grow">
                     <h4 class="text-gray-800 text-base mb-1">${notif.title}</h4>
-                    <p class="text-sm text-gray-600 mb-1">${notif.message}</p>
-                    <p class="text-xs text-gray-500">${new Date(notif.date).toLocaleString()}</p>
+                    <div class="text-sm text-gray-600 mb-1">${notif.message}</div>
+                    <p class="text-xs text-gray-500">${new Date(notif.created_at).toLocaleString()}</p>
                 </div>
             `;
             notificationsList.appendChild(li);

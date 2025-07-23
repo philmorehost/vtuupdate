@@ -150,6 +150,21 @@ try {
     )";
     $pdo->exec($sql);
 
+    // User Read Notifications table
+    $sql = "
+    CREATE TABLE IF NOT EXISTS `user_read_notifications` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `user_id` int(11) NOT NULL,
+      `notification_id` int(11) NOT NULL,
+      `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `user_notification` (`user_id`,`notification_id`),
+      KEY `user_id` (`user_id`),
+      KEY `notification_id` (`notification_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    ";
+    $pdo->exec($sql);
+
     // Add admin user if not exists
     $stmt = $pdo->prepare("SELECT id FROM admins WHERE email = 'admin@example.com'");
     $stmt->execute();
