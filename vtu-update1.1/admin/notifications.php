@@ -61,26 +61,32 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h2 class="text-xl font-bold mb-4">Posted Notifications</h2>
-                    <table class="min-w-full bg-white">
-                        <thead class="bg-gray-800 text-white">
-                            <tr>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Title</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <?php foreach ($notifications as $notification): ?>
+                    <form action="notification_actions.php?action=delete_multiple" method="POST" id="delete-notifications-form">
+                        <?php require_once('csrf_token.php'); ?>
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-800 text-white">
                                 <tr>
-                                    <td class="text-left py-3 px-4"><?= htmlspecialchars($notification['title']) ?></td>
-                                    <td class="text-left py-3 px-4"><?= htmlspecialchars($notification['created_at']) ?></td>
-                                    <td class="text-left py-3 px-4">
-                                        <a href="notification_actions.php?action=delete&id=<?= $notification['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to delete this notification?');">Delete</a>
-                                    </td>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm"><input type="checkbox" id="select-all-notifications"></th>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Title</th>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
+                                    <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="text-gray-700">
+                                <?php foreach ($notifications as $notification): ?>
+                                    <tr>
+                                        <td class="text-left py-3 px-4"><input type="checkbox" name="notification_ids[]" value="<?= $notification['id'] ?>" class="notification-checkbox"></td>
+                                        <td class="text-left py-3 px-4"><?= htmlspecialchars($notification['title']) ?></td>
+                                        <td class="text-left py-3 px-4"><?= htmlspecialchars($notification['created_at']) ?></td>
+                                        <td class="text-left py-3 px-4">
+                                            <a href="notification_actions.php?action=delete&id=<?= $notification['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to delete this notification?');">Delete</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">Delete Selected</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -106,6 +112,13 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             }
         } );
+
+        document.getElementById('select-all-notifications').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
     </script>
 </body>
 </html>

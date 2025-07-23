@@ -323,14 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let calculatorCurrentTransactionPage = 1;
     let calculatorFilteredTransactions = [];
 
-    // Dummy Notification Data
-    let notifications = [
-        { id: 'NOTIF001', title: 'Welcome to Vending Platform!', message: 'Thank you for joining our platform. Explore our services and start vending today!', date: '2025-07-01T09:00:00Z', read: false },
-        { id: 'NOTIF002', title: 'Scheduled Maintenance', message: 'Dear users, we will be performing scheduled maintenance on July 10th, 2025, from 2 AM to 4 AM WAT. Services may be intermittently unavailable.', date: '2025-07-06T14:30:00Z', read: false },
-        { id: 'NOTIF003', title: 'New Feature: Transaction Calculator', message: 'We\'ve launched a new transaction calculator to help you track your spending. Check it out now!', date: '2025-07-05T10:00:00Z', read: true },
-        { id: 'NOTIF004', title: 'Referral Bonus Update', message: 'Your referral bonus for Alice Smith has been credited to your account. Keep inviting friends!', date: '2025-07-04T16:00:00Z', read: true },
-        { id: 'NOTIF005', title: 'Security Alert', message: 'Please ensure your password is strong and unique. Avoid sharing your login credentials with anyone.', date: '2025-06-28T08:00:00Z', read: false }
-    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+    let notifications = [];
 
 
     // --- Page Rendering Function ---
@@ -2794,16 +2787,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function fetchNotifications() {
         fetch('api/notifications.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     notifications = data.data;
                     renderNotifications();
                     updateUnreadNotificationsDot();
+                } else {
+                    console.error('Error fetching notifications:', data.message);
                 }
             })
-            .catch(error => console.error('Error fetching notifications:', error));
+            .catch(error => {
+                console.error('Fatal error fetching notifications:', error);
+            });
     }
+
+    markAllReadBtn.addEventListener('click', () => {
+        fetch('api/notifications.php?action=mark_all_read', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    notifications.forEach(notif => {
+                        notif.read = true;
+                    });
+                    renderNotifications();
+                    updateUnreadNotificationsDot();
+                    alert('All notifications marked as read.');
+                } else {
+                    alert('Failed to mark all notifications as read.');
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all notifications as read:', error);
+                alert('An error occurred while marking notifications as read.');
+            });
+    });
 
     // --- Initial Load ---
     // Check for saved theme preference

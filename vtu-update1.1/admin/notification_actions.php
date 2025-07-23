@@ -40,6 +40,28 @@ if ($action === 'post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: notifications.php?error=db_error');
         exit();
     }
+} elseif ($action === 'delete_multiple' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('Location: notifications.php?error=csrf');
+        exit();
+    }
+
+    $notification_ids = $_POST['notification_ids'] ?? [];
+    if (!empty($notification_ids)) {
+        try {
+            $placeholders = implode(',', array_fill(0, count($notification_ids), '?'));
+            $stmt = $pdo->prepare("DELETE FROM notifications WHERE id IN ($placeholders)");
+            $stmt->execute($notification_ids);
+            header('Location: notifications.php?success=deleted_multiple');
+            exit();
+        } catch (PDOException $e) {
+            header('Location: notifications.php?error=db_error');
+            exit();
+        }
+    } else {
+        header('Location: notifications.php?error=no_selection');
+        exit();
+    }
 } else {
     header('Location: notifications.php');
     exit();
