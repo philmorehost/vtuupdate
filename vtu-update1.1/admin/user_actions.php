@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once('../includes/session_config.php');
 require_once('auth_check.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

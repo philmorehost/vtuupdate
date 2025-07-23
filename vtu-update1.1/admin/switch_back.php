@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once('../includes/session_config.php');
 if (isset($_SESSION['admin_id'])) {
     // Restore admin session
     $_SESSION['admin'] = $_SESSION['admin_id'];

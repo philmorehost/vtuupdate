@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once('includes/session_config.php');
 require_once('includes/db.php');
 
 $action = $_GET['action'] ?? 'login';
