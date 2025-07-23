@@ -49,6 +49,12 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
                             Password
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" name="password" type="password" placeholder="******************" required autocomplete="new-password">
+                        <div class="mt-2">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div id="password-strength-bar" class="h-2 rounded-full" style="width: 0;"></div>
+                            </div>
+                            <p id="password-strength-text" class="text-sm mt-1"></p>
+                        </div>
                     </div>
                     <div class="flex items-center justify-between">
                         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
@@ -63,5 +69,45 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+    <script>
+        const passwordInput = document.getElementById('password');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const passwordStrengthText = document.getElementById('password-strength-text');
+
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            let barColor = '';
+            let strengthText = '';
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    barColor = 'bg-red-500';
+                    strengthText = 'Weak';
+                    break;
+                case 2:
+                    barColor = 'bg-yellow-500';
+                    strengthText = 'Medium';
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    barColor = 'bg-green-500';
+                    strengthText = 'Strong';
+                    break;
+            }
+
+            passwordStrengthBar.style.width = (strength * 20) + '%';
+            passwordStrengthBar.className = 'h-2 rounded-full ' + barColor;
+            passwordStrengthText.innerText = 'Password Strength: ' + strengthText;
+        });
+    </script>
 </body>
 </html>

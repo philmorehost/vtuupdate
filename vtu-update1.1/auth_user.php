@@ -2,6 +2,14 @@
 session_start();
 require_once('includes/db.php');
 
+// Function to check email liveness (placeholder)
+function check_email_liveness($email) {
+    // In a real application, you would use a service like Kickbox or ZeroBounce
+    // For this example, we'll just check the domain's MX records
+    $domain = substr(strrchr($email, "@"), 1);
+    return checkdnsrr($domain, 'MX');
+}
+
 $action = $_GET['action'] ?? 'login';
 
 if ($action === 'register') {
@@ -13,8 +21,26 @@ if ($action === 'register') {
         $password = $_POST['password'] ?? '';
         $ref = $_POST['ref'] ?? '';
 
+        // Sanitize and validate inputs
+        $name = filter_var(trim($name), FILTER_SANITIZE_STRING);
+        $email = filter_var(trim($email), FILTER_SANITIZE_EMAIL);
+        $phone = filter_var(trim($phone), FILTER_SANITIZE_STRING);
+
         if (empty($name) || empty($email) || empty($phone) || empty($password)) {
             die('Please fill all required fields.');
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            die('Invalid email format.');
+        }
+
+        if (!check_email_liveness($email)) {
+            die('Email address does not appear to be active.');
+        }
+
+        // Enforce strong password
+        if (strlen($password) < 6 || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password) || !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            die('Password must be at least 6 characters long and include at least one number and one special character.');
         }
 
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -60,20 +86,43 @@ if ($action === 'register') {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT id, password FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT id, password, failed_login_attempts, suspended_until FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
+            if ($user) {
+                if ($user['suspended_until'] && strtotime($user['suspended_until']) > time()) {
+                    die('Your account is temporarily suspended. Please try again later.');
+                }
 
-                $stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                $stmt->execute([$user['id']]);
+                if (password_verify($password, $user['password'])) {
+                    // Reset failed login attempts
+                    $stmt = $pdo->prepare("UPDATE users SET failed_login_attempts = 0, suspended_until = NULL WHERE id = ?");
+                    $stmt->execute([$user['id']]);
 
-                header('Location: index.php');
-                exit();
+                    $_SESSION['user_id'] = $user['id'];
+
+                    $stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                    $stmt->execute([$user['id']]);
+
+                    header('Location: index.php');
+                    exit();
+                } else {
+                    $attempts = $user['failed_login_attempts'] + 1;
+                    $sql = "UPDATE users SET failed_login_attempts = ? WHERE id = ?";
+                    if ($attempts >= 3) {
+                        $sql .= ", suspended_until = DATE_ADD(NOW(), INTERVAL 2 HOUR)";
+                    }
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$attempts, $user['id']]);
+
+                    header('Location: login.php?error=invalid_credentials');
+                    exit();
+                }
             } else {
-                header('Location: login.php?error=1');
+                // User does not exist, block IP (placeholder)
+                error_log("Failed login attempt from IP: " . $_SERVER['REMOTE_ADDR']);
+                header('Location: login.php?error=invalid_credentials');
                 exit();
             }
         } catch (PDOException $e) {

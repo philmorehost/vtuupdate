@@ -3,6 +3,9 @@ require_once('../includes/session_config.php');
 require_once('auth_check.php');
 require_once('../includes/db.php');
 
+// Log all POST data
+error_log(print_r($_POST, true));
+
 $action = $_GET['action'] ?? '';
 
 if ($action === 'post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
