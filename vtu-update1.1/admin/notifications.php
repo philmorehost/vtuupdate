@@ -86,11 +86,22 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
     <script>
+        let editor;
         ClassicEditor
             .create( document.querySelector( '#message' ) )
+            .then( newEditor => {
+                editor = newEditor;
+            } )
             .catch( error => {
                 console.error( error );
             } );
+
+        document.querySelector( 'form' ).addEventListener( 'submit', event => {
+            if ( editor ) {
+                const messageTextarea = document.querySelector( '#message' );
+                messageTextarea.value = editor.getData();
+            }
+        } );
     </script>
 </body>
 </html>
