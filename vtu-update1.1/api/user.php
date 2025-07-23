@@ -21,9 +21,9 @@ try {
             $updateStmt->execute([$referralLink, $userId]);
             $user['referral_link'] = $referralLink;
         }
-        echo json_encode($user);
+        echo json_encode(['success' => true, 'data' => $user]);
     } else {
-        echo json_encode(['error' => 'User not found.']);
+        echo json_encode(['success' => false, 'message' => 'User not found.']);
     }
 
 } catch (PDOException $e) {

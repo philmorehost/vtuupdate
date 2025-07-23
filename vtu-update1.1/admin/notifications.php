@@ -119,6 +119,10 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 checkbox.checked = this.checked;
             });
         });
+
+        document.getElementById('delete-notifications-form').addEventListener('submit', function(event) {
+            // No longer need to prevent default and show alert
+        });
     </script>
 </body>
 </html>

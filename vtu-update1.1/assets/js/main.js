@@ -2839,6 +2839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchUserData();
     fetchTransactions();
+    fetchNotifications();
     renderPage('dashboard');
     updateUnreadNotificationsDot();
 });

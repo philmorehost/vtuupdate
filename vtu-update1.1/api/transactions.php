@@ -3,7 +3,8 @@ header('Content-Type: application/json');
 require_once('../includes/session_config.php');
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
+    echo json_encode(['success' => false, 'message' => 'User not logged in.']);
+    exit();
 }
 $userId = $_SESSION['user_id'];
 
