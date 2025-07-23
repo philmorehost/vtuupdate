@@ -43,6 +43,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h2 class="text-xl font-bold mb-4">Post New Notification</h2>
                     <form action="notification_actions.php?action=post" method="POST">
+                        <?php require_once('csrf_token.php'); ?>
                         <div class="mb-4">
                             <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title</label>
                             <input type="text" name="title" id="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>

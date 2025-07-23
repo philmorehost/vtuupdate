@@ -6,6 +6,11 @@ require_once('../includes/db.php');
 $action = $_GET['action'] ?? '';
 
 if ($action === 'post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('Location: notifications.php?error=csrf');
+        exit();
+    }
+
     $title = $_POST['title'] ?? '';
     $message = $_POST['message'] ?? '';
     $user_id = !empty($_POST['user_id']) ? $_POST['user_id'] : null;

@@ -73,7 +73,8 @@ if ($action === 'register') {
                 header('Location: index.php');
                 exit();
             } else {
-                header('Location: login.php?error=1');
+                $_SESSION['login_error'] = 'Invalid email or password.';
+                header('Location: login.php');
                 exit();
             }
         } catch (PDOException $e) {

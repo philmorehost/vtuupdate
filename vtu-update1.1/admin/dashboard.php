@@ -41,6 +41,9 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <a href="users.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Users</a>
                 <a href="transactions.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Transactions</a>
                 <a href="payment_orders.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Payment Orders</a>
+                <a href="fund_shares.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Fund Shares</a>
+                <a href="bonus_withdrawals.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bonus Withdrawals</a>
+                <a href="notifications.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Notifications</a>
                 <a href="services.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Services</a>
                 <a href="bank_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bank Settings</a>
                 <a href="site_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Site Settings</a>

@@ -32,6 +32,12 @@ $settings = $stmt->fetch(PDO::FETCH_ASSOC);
                         <?php endif; ?>
                     </div>
                     <h2 class="text-2xl font-bold text-center mb-6">User Login</h2>
+                    <?php
+                    if (isset($_SESSION['login_error'])) {
+                        echo '<p class="text-red-500 text-xs italic text-center mb-4">' . $_SESSION['login_error'] . '</p>';
+                        unset($_SESSION['login_error']);
+                    }
+                    ?>
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
                             Email
