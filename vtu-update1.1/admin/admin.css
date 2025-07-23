@@ -1,0 +1,8 @@
+.sidebar {
+    width: 280px;
+    min-width: 280px;
+}
+
+.main-content {
+    flex-grow: 1;
+}

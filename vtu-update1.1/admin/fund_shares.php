@@ -13,13 +13,14 @@ $shares = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fund Shares - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="admin.css" rel="stylesheet">
 </head>
 <body class="bg-light">
     <div class="d-flex">
         <?php include 'sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1 p-4 overflow-auto">
+        <div class="main-content p-4">
             <h1 class="h3 mb-4">Fund Shares</h1>
             <div class="card shadow-sm">
                 <div class="card-body">
