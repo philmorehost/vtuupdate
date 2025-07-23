@@ -24,4 +24,14 @@ if (!isset($_SESSION['last_regeneration'])) {
 }
 
 header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://placehold.co;");
+
+// Log visitor data
+if (!isset($_SESSION['visitor_logged'])) {
+    require_once('db.php');
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $browser = $_SERVER['HTTP_USER_AGENT'];
+    $stmt = $pdo->prepare("INSERT INTO visitors (ip_address, browser) VALUES (?, ?)");
+    $stmt->execute([$ip_address, $browser]);
+    $_SESSION['visitor_logged'] = true;
+}
 ?>
