@@ -109,12 +109,13 @@ if ($action === 'register') {
                     exit();
                 } else {
                     $attempts = $user['failed_login_attempts'] + 1;
-                    $sql = "UPDATE users SET failed_login_attempts = ? WHERE id = ?";
                     if ($attempts >= 3) {
-                        $sql .= ", suspended_until = DATE_ADD(NOW(), INTERVAL 2 HOUR)";
+                        $stmt = $pdo->prepare("UPDATE users SET failed_login_attempts = ?, suspended_until = DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id = ?");
+                        $stmt->execute([$attempts, $user['id']]);
+                    } else {
+                        $stmt = $pdo->prepare("UPDATE users SET failed_login_attempts = ? WHERE id = ?");
+                        $stmt->execute([$attempts, $user['id']]);
                     }
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([$attempts, $user['id']]);
 
                     header('Location: login.php?error=invalid_credentials');
                     exit();
