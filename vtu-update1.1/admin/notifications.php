@@ -102,7 +102,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 console.error( error );
             } );
 
-        document.querySelector( 'form' ).addEventListener( 'submit', event => {
+        document.querySelector( 'form[action="notification_actions.php?action=post"]' ).addEventListener( 'submit', event => {
             if ( editor ) {
                 const messageTextarea = document.querySelector( '#message' );
                 messageTextarea.value = editor.getData();
