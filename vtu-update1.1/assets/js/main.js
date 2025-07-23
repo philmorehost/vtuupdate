@@ -1379,10 +1379,23 @@ document.addEventListener('DOMContentLoaded', () => {
             notificationsList.appendChild(li);
 
             li.addEventListener('click', () => {
-                notif.read = true;
-                renderNotifications();
-                updateUnreadNotificationsDot();
-                alert(`Notification: ${notif.title}\n\n${notif.message}\n\nDate: ${new Date(notif.date).toLocaleString()}`);
+                if (!notif.is_read) {
+                    fetch('api/notifications.php?action=mark_read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `id=${notif.id}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            notif.is_read = true;
+                            renderNotifications();
+                            updateUnreadNotificationsDot();
+                        }
+                    });
+                }
             });
         });
     }

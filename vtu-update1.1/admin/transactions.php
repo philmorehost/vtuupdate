@@ -1,11 +1,6 @@
 <?php
-require_once('../includes/session_config.php');
-require_once('auth_check.php');
-require_once('../includes/db.php');
-
-// Fetch current settings
-$stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
-$settings = $stmt->fetch(PDO::FETCH_ASSOC);
+$title = 'Manage Transactions';
+require_once('includes/header.php');
 
 // Base query
 $sql = "SELECT t.*, u.name AS user_name FROM transactions t JOIN users u ON t.user_id = u.id";
@@ -66,219 +61,139 @@ $batchSql = "SELECT batch_id, user_id, type,
 $batchStmt = $pdo->query($batchSql);
 $batches = $batchStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Transactions - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="flex h-screen bg-gray-200">
-        <!-- Sidebar -->
-        <div id="sidebar" class="w-64 bg-gray-800 text-white p-4 fixed md:relative h-full z-20 md:block hidden">
-            <div class="flex justify-center mb-6">
-                <?php if (!empty($settings['site_logo'])): ?>
-                    <img src="../<?= htmlspecialchars($settings['site_logo']) ?>" alt="Site Logo" class="h-16">
-                <?php else: ?>
-                    <h2 class="text-2xl font-bold text-center"><?= htmlspecialchars($settings['site_name'] ?? 'VTU Platform') ?></h2>
-                <?php endif; ?>
-            </div>
-            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2>
-            <nav>
-                <a href="dashboard.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Dashboard</a>
-                <a href="users.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Users</a>
-                <a href="transactions.php" class="block py-2.5 px-4 rounded transition duration-200 bg-gray-700">Transactions</a>
-                <a href="payment_orders.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Payment Orders</a>
-                <a href="fund_shares.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Fund Shares</a>
-                <a href="bonus_withdrawals.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bonus Withdrawals</a>
-                <a href="notifications.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Notifications</a>
-                <a href="services.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Services</a>
-                <a href="bank_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Bank Settings</a>
-                <a href="site_settings.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Site Settings</a>
-                <a href="logout.php" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Logout</a>
-            </nav>
-        </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 p-10 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold">Manage Transactions</h1>
-                <button id="sidebar-toggle" class="md:hidden p-2 rounded-md bg-gray-800 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                </button>
+<!-- Filter and Export Controls -->
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <form action="transactions.php" method="GET">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex-grow">
+                <!-- Search Box -->
+                <input type="text" name="search" placeholder="Search transactions..." class="border rounded py-2 px-4 w-full" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
             </div>
-
-            <!-- Filter and Export Controls -->
-            <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-                <form action="transactions.php" method="GET">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <!-- Search Box -->
-                            <input type="text" name="search" placeholder="Search transactions..." class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                        </div>
-                        <div>
-                            <!-- Date Filters -->
-                            <a href="transactions.php?filter=today" class="bg-blue-500 text-white py-2 px-4 rounded">Today</a>
-                            <a href="transactions.php?filter=week" class="bg-blue-500 text-white py-2 px-4 rounded">This Week</a>
-                            <a href="transactions.php?filter=month" class="bg-blue-500 text-white py-2 px-4 rounded">This Month</a>
-                        </div>
-                        <div>
-                            <input type="date" name="start_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['start_date'] ?? '') ?>">
-                            <input type="date" name="end_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['end_date'] ?? '') ?>">
-                            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Filter</button>
-                        </div>
-                        <div>
-                            <!-- Export/Import -->
-                            <a href="export_transactions.php?<?= http_build_query($_GET) ?>" class="bg-green-500 text-white py-2 px-4 rounded">Export CSV</a>
-                        </div>
-                    </div>
-                </form>
+            <div class="flex flex-wrap gap-2">
+                <!-- Date Filters -->
+                <a href="transactions.php?filter=today" class="bg-blue-500 text-white py-2 px-4 rounded">Today</a>
+                <a href="transactions.php?filter=week" class="bg-blue-500 text-white py-2 px-4 rounded">This Week</a>
+                <a href="transactions.php?filter=month" class="bg-blue-500 text-white py-2 px-4 rounded">This Month</a>
             </div>
-
-            <div class="flex items-center justify-end mb-4">
-                <span class="text-sm font-medium text-gray-900 mr-3">Batch View</span>
-                <label for="toggle-batch" class="inline-flex relative items-center cursor-pointer">
-                    <input type="checkbox" value="" id="toggle-batch" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+            <div class="flex flex-wrap gap-2">
+                <input type="date" name="start_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['start_date'] ?? '') ?>">
+                <input type="date" name="end_date" class="border rounded py-2 px-4" value="<?= htmlspecialchars($_GET['end_date'] ?? '') ?>">
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Filter</button>
             </div>
-
-            <div id="individual-view" class="bg-white p-6 rounded-lg shadow-md">
-                <table class="min-w-full bg-white" id="transactionsTable">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Amount</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Balances (Before/After)</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Source</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Status</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700">
-                        <?php foreach ($transactions as $transaction): ?>
-                            <tr>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['user_name']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['type']) ?></td>
-                                <td class="text-left py-3 px-4">
-                                    <span class="<?= $transaction['amount'] < 0 ? 'text-red-500' : 'text-green-500' ?>">
-                                        ₦<?= htmlspecialchars(number_format(abs($transaction['amount']), 2)) ?>
-                                    </span>
-                                </td>
-                                <td class="text-left py-3 px-4">
-                                    ₦<?= htmlspecialchars(number_format($transaction['balance_before'], 2)) ?> /
-                                    ₦<?= htmlspecialchars(number_format($transaction['balance_after'], 2)) ?>
-                                </td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['source']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['created_at']) ?></td>
-                                <td class="text-left py-3 px-4">
-                                    <span class="px-2 py-1 font-semibold leading-tight rounded-full
-                                        <?= $transaction['status'] === 'Completed' ? 'text-green-700 bg-green-100' : '' ?>
-                                        <?= $transaction['status'] === 'Processing' ? 'text-yellow-700 bg-yellow-100' : '' ?>
-                                        <?= $transaction['status'] === 'Failed' ? 'text-red-700 bg-red-100' : '' ?>
-                                        <?= $transaction['status'] === 'Cancelled' ? 'text-gray-700 bg-gray-100' : '' ?>
-                                    ">
-                                        <?= htmlspecialchars($transaction['status']) ?>
-                                    </span>
-                                </td>
-                                <td class="text-left py-3 px-4">
-                                    <?php if ($transaction['status'] === 'Processing'): ?>
-                                        <a href="transaction_actions.php?action=cancel&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to cancel this transaction?');">Cancel</a>
-                                    <?php elseif ($transaction['status'] === 'Completed'): ?>
-                                        <a href="transaction_actions.php?action=fail&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to fail this transaction? This will refund the user.');">Fail</a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <div id="batch-view" class="hidden bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold mb-4">Batch Transactions</h2>
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Batch ID</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Counts (Success/Failed/Processing)</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700">
-                        <?php foreach ($batches as $batch): ?>
-                            <tr>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['batch_id']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['user_id']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['type']) ?></td>
-                                <td class="text-left py-3 px-4">
-                                    <span class="text-green-500"><?= $batch['success_count'] ?></span> /
-                                    <span class="text-red-500"><?= $batch['failed_count'] ?></span> /
-                                    <span class="text-yellow-500"><?= $batch['processing_count'] ?></span>
-                                </td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['date']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div>
+                <!-- Export/Import -->
+                <a href="export_transactions.php?<?= http_build_query($_GET) ?>" class="bg-green-500 text-white py-2 px-4 rounded">Export CSV</a>
             </div>
         </div>
-    </div>
-    <script>
-        // Toggle between individual and batch view
-        const toggleBatch = document.getElementById('toggle-batch');
-        const individualView = document.getElementById('individual-view');
-        const batchView = document.getElementById('batch-view');
+    </form>
+</div>
 
-        toggleBatch.addEventListener('change', function() {
-            if (this.checked) {
-                individualView.style.display = 'none';
-                batchView.style.display = 'block';
-            } else {
-                individualView.style.display = 'block';
-                batchView.style.display = 'none';
-            }
-        });
-    </script>
-    <script>
-        document.getElementById('sidebar-toggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('hidden');
-        });
-    </script>
-</body>
-</html>
-            <div id="batch-view" class="hidden bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold mb-4">Batch Transactions</h2>
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Batch ID</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Counts (Success/Failed/Processing)</th>
-                            <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700">
-                        <?php foreach ($batches as $batch): ?>
-                            <tr>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['batch_id']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['user_id']) ?></td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['type']) ?></td>
-                                <td class="text-left py-3 px-4">
-                                    <span class="text-green-500"><?= $batch['success_count'] ?></span> /
-                                    <span class="text-red-500"><?= $batch['failed_count'] ?></span> /
-                                    <span class="text-yellow-500"><?= $batch['processing_count'] ?></span>
-                                </td>
-                                <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['date']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+<div class="flex items-center justify-end mb-4">
+    <span class="text-sm font-medium text-gray-900 mr-3">Batch View</span>
+    <label for="toggle-batch" class="inline-flex relative items-center cursor-pointer">
+        <input type="checkbox" value="" id="toggle-batch" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+    </label>
+</div>
+
+<div id="individual-view" class="bg-white p-6 rounded-lg shadow-md table-container">
+    <table class="min-w-full bg-white" id="transactionsTable">
+        <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Amount</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Balances (Before/After)</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Source</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Status</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-700">
+            <?php foreach ($transactions as $transaction): ?>
+                <tr>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['user_name']) ?></td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['type']) ?></td>
+                    <td class="text-left py-3 px-4">
+                        <span class="<?= $transaction['amount'] < 0 ? 'text-red-500' : 'text-green-500' ?>">
+                            ₦<?= htmlspecialchars(number_format(abs($transaction['amount']), 2)) ?>
+                        </span>
+                    </td>
+                    <td class="text-left py-3 px-4">
+                        ₦<?= htmlspecialchars(number_format($transaction['balance_before'], 2)) ?> /
+                        ₦<?= htmlspecialchars(number_format($transaction['balance_after'], 2)) ?>
+                    </td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['source']) ?></td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($transaction['created_at']) ?></td>
+                    <td class="text-left py-3 px-4">
+                        <span class="px-2 py-1 font-semibold leading-tight rounded-full
+                            <?= $transaction['status'] === 'Completed' ? 'text-green-700 bg-green-100' : '' ?>
+                            <?= $transaction['status'] === 'Processing' ? 'text-yellow-700 bg-yellow-100' : '' ?>
+                            <?= $transaction['status'] === 'Failed' ? 'text-red-700 bg-red-100' : '' ?>
+                            <?= $transaction['status'] === 'Cancelled' ? 'text-gray-700 bg-gray-100' : '' ?>
+                        ">
+                            <?= htmlspecialchars($transaction['status']) ?>
+                        </span>
+                    </td>
+                    <td class="text-left py-3 px-4">
+                        <?php if ($transaction['status'] === 'Processing'): ?>
+                            <a href="transaction_actions.php?action=cancel&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to cancel this transaction?');">Cancel</a>
+                        <?php elseif ($transaction['status'] === 'Completed'): ?>
+                            <a href="transaction_actions.php?action=fail&id=<?= $transaction['id'] ?>" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to fail this transaction? This will refund the user.');">Fail</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<div id="batch-view" class="hidden bg-white p-6 rounded-lg shadow-md table-container">
+    <h2 class="text-2xl font-bold mb-4">Batch Transactions</h2>
+    <table class="min-w-full bg-white">
+        <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Batch ID</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">User</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Type</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Counts (Success/Failed/Processing)</th>
+                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Date</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-700">
+            <?php foreach ($batches as $batch): ?>
+                <tr>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['batch_id']) ?></td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['user_id']) ?></td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['type']) ?></td>
+                    <td class="text-left py-3 px-4">
+                        <span class="text-green-500"><?= $batch['success_count'] ?></span> /
+                        <span class="text-red-500"><?= $batch['failed_count'] ?></span> /
+                        <span class="text-yellow-500"><?= $batch['processing_count'] ?></span>
+                    </td>
+                    <td class="text-left py-3 px-4"><?= htmlspecialchars($batch['date']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Toggle between individual and batch view
+    const toggleBatch = document.getElementById('toggle-batch');
+    const individualView = document.getElementById('individual-view');
+    const batchView = document.getElementById('batch-view');
+
+    toggleBatch.addEventListener('change', function() {
+        if (this.checked) {
+            individualView.style.display = 'none';
+            batchView.style.display = 'block';
+        } else {
+            individualView.style.display = 'block';
+            batchView.style.display = 'none';
+        }
+    });
+</script>
+
+<?php require_once('includes/footer.php'); ?>
